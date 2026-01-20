@@ -1,0 +1,7 @@
+{
+  "name": "Sourdough Diary",
+  "description": "A vibrant, pastel-themed sourdough baking blog and recipe calculator for tracking bakes and calculating baker's percentages.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
