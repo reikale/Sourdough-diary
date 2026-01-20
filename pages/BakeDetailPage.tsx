@@ -1,6 +1,7 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { BakeEntry } from '../types';
 import { ArrowLeft, Clock, Thermometer, Calendar, Hash, Droplets, Info, Layers, Camera, Heart, Scissors } from 'lucide-react';
 
@@ -10,7 +11,14 @@ interface Props {
 
 const BakeDetailPage: React.FC<Props> = ({ bakes }) => {
   const { id } = useParams<{ id: string }>();
+  const { t } = useTranslation();
   const bake = bakes.find((b) => b.id === id);
+
+  useEffect(() => {
+    if (bake) {
+      document.title = `${bake.title} | ${t('app_name')}`;
+    }
+  }, [bake, t]);
 
   if (!bake) {
     return (
@@ -27,7 +35,7 @@ const BakeDetailPage: React.FC<Props> = ({ bakes }) => {
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 space-y-16 animate-in fade-in slide-in-from-bottom-12 duration-700">
       <Link to="/" className="inline-flex items-center gap-2 bg-white border-4 border-black px-6 py-2 rounded-full font-black text-xl hover:bg-yellow-50 transition-all shadow-[4px_4px_0px_0px_#000] active:translate-y-1 active:shadow-none">
-        <ArrowLeft size={24} /> Back to Gallery
+        <ArrowLeft size={24} /> {t('nav_blog')}
       </Link>
 
       <article className="space-y-24">
@@ -36,7 +44,7 @@ const BakeDetailPage: React.FC<Props> = ({ bakes }) => {
           <div className="flex-1 space-y-8">
              <div className="flex flex-wrap items-center gap-4">
                 <span className="bg-orange-500 text-white border-4 border-black px-6 py-1 rounded-full font-black text-sm uppercase tracking-widest shadow-[4px_4px_0px_0px_#000]">
-                  Batch #{bake.batchNumber}
+                  {t('batch_no')} #{bake.batchNumber}
                 </span>
                 <span className="bg-blue-100 text-blue-700 border-2 border-black px-4 py-1 rounded-full font-black text-sm uppercase">
                   <Calendar size={16} className="inline mr-1" /> {new Date(bake.date).toDateString()}
@@ -60,22 +68,22 @@ const BakeDetailPage: React.FC<Props> = ({ bakes }) => {
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="sticker-card bg-pink-100 p-8 rounded-3xl space-y-4 text-center transform hover:rotate-1">
             <Thermometer className="mx-auto text-pink-500" size={48} />
-            <div className="text-sm font-black uppercase tracking-widest text-pink-700">Kitchen Air</div>
+            <div className="text-sm font-black uppercase tracking-widest text-pink-700">{t('kitchen_temp')}</div>
             <div className="text-5xl font-black text-black">{bake.kitchenTemp}°C</div>
           </div>
           <div className="sticker-card bg-blue-100 p-8 rounded-3xl space-y-4 text-center transform hover:-rotate-1">
             <Droplets className="mx-auto text-blue-500" size={48} />
-            <div className="text-sm font-black uppercase tracking-widest text-blue-700">Hydration</div>
+            <div className="text-sm font-black uppercase tracking-widest text-blue-700">{t('calc_hydration')}</div>
             <div className="text-5xl font-black text-black">{hydration}%</div>
           </div>
           <div className="sticker-card bg-yellow-100 p-8 rounded-3xl space-y-4 text-center transform hover:rotate-1">
             <Layers className="mx-auto text-yellow-600" size={48} />
-            <div className="text-sm font-black uppercase tracking-widest text-yellow-800">Total Flour</div>
+            <div className="text-sm font-black uppercase tracking-widest text-yellow-800">{t('calc_total_flour')}</div>
             <div className="text-5xl font-black text-black">{bake.percentages.flour}g</div>
           </div>
           <div className="sticker-card bg-green-100 p-8 rounded-3xl space-y-4 text-center transform hover:-rotate-1">
             <Heart className="mx-auto text-green-500" size={48} />
-            <div className="text-sm font-black uppercase tracking-widest text-green-800">Salt Content</div>
+            <div className="text-sm font-black uppercase tracking-widest text-green-800">Salt</div>
             <div className="text-5xl font-black text-black">{bake.percentages.salt}g</div>
           </div>
         </section>

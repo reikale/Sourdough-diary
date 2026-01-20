@@ -2,15 +2,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BakeEntry, TimelineStep } from '../types';
-import { Plus, Trash2, Save, Sparkles, Clock, FlaskConical, Camera, X } from 'lucide-react';
+import { Plus, Trash2, Save, Sparkles, Clock, FlaskConical, Camera, X, Loader2 } from 'lucide-react';
 import { MOCK_BAKES } from '../constants';
 
 interface Props {
-  onAdd: (bake: BakeEntry) => void;
+  onAdd: (bake: BakeEntry) => Promise<void>;
 }
 
 const CreateBakePage: React.FC<Props> = ({ onAdd }) => {
   const navigate = useNavigate();
+  const [submitting, setSubmitting] = useState(false);
   const [title, setTitle] = useState('');
   const [batchNumber, setBatchNumber] = useState(MOCK_BAKES.length + 1);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -23,7 +24,7 @@ const CreateBakePage: React.FC<Props> = ({ onAdd }) => {
   const [coverImage, setCoverImage] = useState('https://picsum.photos/seed/' + Math.random() + '/800/600');
   
   const [timeline, setTimeline] = useState<TimelineStep[]>([
-    { id: '1', time: '09:00', action: 'Feed Starter', notes: 'Simulated feedback loop...', image: '' }
+    { id: '1', time: '09:00', action: 'Feed Starter', notes: 'Starter is feeling hungry today!', image: '' }
   ]);
 
   const addTimelineStep = () => {
@@ -46,13 +47,13 @@ const CreateBakePage: React.FC<Props> = ({ onAdd }) => {
   };
 
   const setStepImage = (id: string) => {
-    // Simulation of image upload
     const url = `https://picsum.photos/seed/${Math.random()}/800/600`;
     updateStep(id, 'image', url);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     const newBake: BakeEntry = {
       id: Date.now().toString(),
       title,
@@ -64,8 +65,15 @@ const CreateBakePage: React.FC<Props> = ({ onAdd }) => {
       timeline,
       coverImage
     };
-    onAdd(newBake);
-    navigate('/');
+    
+    try {
+      await onAdd(newBake);
+      navigate('/');
+    } catch (err) {
+      alert('Error publishing to database!');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -247,10 +255,15 @@ const CreateBakePage: React.FC<Props> = ({ onAdd }) => {
         {/* Final Save Button */}
         <button 
           type="submit"
-          className="w-full bg-black text-white py-12 rounded-[4rem] text-5xl font-black shadow-[20px_20px_0px_0px_#facc15] hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all flex items-center justify-center gap-8 group active:scale-95"
+          disabled={submitting}
+          className="w-full bg-black text-white py-12 rounded-[4rem] text-5xl font-black shadow-[20px_20px_0px_0px_#facc15] hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all flex items-center justify-center gap-8 group active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Save size={64} className="group-hover:rotate-12 transition-transform" /> 
-          PUBLISH BAKE
+          {submitting ? (
+            <Loader2 size={64} className="animate-spin text-yellow-400" />
+          ) : (
+            <Save size={64} className="group-hover:rotate-12 transition-transform" /> 
+          )}
+          {submitting ? 'FERMENTING...' : 'PUBLISH BAKE'}
         </button>
       </form>
     </div>
