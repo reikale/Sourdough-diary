@@ -26,6 +26,16 @@ export interface BakeEntry {
   coverImage: string;
 }
 
+export interface BakeComment {
+  id: string;
+  bake_id: string;
+  user_id: string;
+  user_name: string;
+  user_avatar: string;
+  content: string;
+  created_at: string;
+}
+
 export interface CalculatorState {
   totalFlour: number;
   hydrationPercent: number;

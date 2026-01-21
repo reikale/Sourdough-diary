@@ -3,9 +3,9 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { 
   BookOpen, PlusCircle, Layers, Heart, Lock, Unlock, X, Check, 
-  Cloud, AlertCircle, Database, ShieldAlert, Globe, Loader2 
+  Cloud, AlertCircle, Database, ShieldAlert, Globe, Loader2, LogOut, User 
 } from 'lucide-react';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, Session, User as SupabaseUser } from '@supabase/supabase-js';
 import i18next from 'i18next';
 import { initReactI18next, useTranslation, I18nextProvider } from 'react-i18next';
 
@@ -43,7 +43,13 @@ const resources = {
       "local_mode": "Local Storage Mode",
       "cloud_mode": "Cloud Synchronized",
       "missing_keys": "Missing Environment Variables",
-      "read_more": "Read Diary"
+      "read_more": "Read Diary",
+      "sign_in": "Sign In",
+      "sign_out": "Sign Out",
+      "comments_title": "The Chatty Corner",
+      "comment_placeholder": "Leave a floury thought...",
+      "post_comment": "Post Comment",
+      "login_to_comment": "Join the conversation! Log in to comment."
     }
   },
   lt: {
@@ -71,37 +77,37 @@ const resources = {
       "local_mode": "Vietinė Saugykla",
       "cloud_mode": "Debesų Sinchronizacija",
       "missing_keys": "Trūksta aplinkos kintamųjų",
-      "read_more": "Skaityti Dienoraštį"
+      "read_more": "Skaityti Dienoraštį",
+      "sign_in": "Prisijungti",
+      "sign_out": "Atsijungti",
+      "comments_title": "Pokalbių Kampelis",
+      "comment_placeholder": "Palikite miltuotą mintį...",
+      "post_comment": "Komentuoti",
+      "login_to_comment": "Prisijunk prie pokalbio! Prisijunk, kad galėtum komentuoti."
     }
   }
 };
 
-// Create a dedicated instance to avoid singleton issues in ESM
 const i18nInstance = i18next.createInstance();
-
 i18nInstance
   .use(initReactI18next)
   .init({
     resources,
     lng: "en",
     fallbackLng: "en",
-    interpolation: {
-      escapeValue: false
-    },
-    react: {
-      useSuspense: false
-    }
+    interpolation: { escapeValue: false },
+    react: { useSuspense: false }
   });
 
 // --- Supabase Setup ---
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
 
 const isConfigured = !!(SUPABASE_URL && SUPABASE_ANON_KEY && 
                         SUPABASE_URL !== 'https://your-project.supabase.co' && 
                         SUPABASE_ANON_KEY !== 'your-anon-key');
 
-const supabase = isConfigured 
+export const supabase = isConfigured 
   ? createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!) 
   : null;
 
@@ -110,19 +116,29 @@ const SourdoughApp: React.FC = () => {
   const [bakes, setBakes] = useState<BakeEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [dbError, setDbError] = useState<string | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return sessionStorage.getItem('is_owner') === 'true';
-  });
-  
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => sessionStorage.getItem('is_owner') === 'true');
   const [showLogin, setShowLogin] = useState(false);
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(false);
 
   useEffect(() => {
-    if (i18n.language) {
-      document.documentElement.lang = i18n.language;
-    }
+    if (i18n.language) document.documentElement.lang = i18n.language;
   }, [i18n.language]);
+
+  useEffect(() => {
+    if (supabase) {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setSession(session);
+      });
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        setSession(session);
+      });
+
+      return () => subscription.unsubscribe();
+    }
+  }, []);
 
   useEffect(() => {
     const fetchBakes = async () => {
@@ -142,9 +158,7 @@ const SourdoughApp: React.FC = () => {
           .order('date', { ascending: false });
 
         if (error) {
-          const msg = error.message || JSON.stringify(error);
-          console.error('Supabase Error:', msg);
-          setDbError(msg);
+          setDbError(error.message);
           setBakes(MOCK_BAKES); 
         } else if (data && data.length > 0) {
           setBakes(data as BakeEntry[]);
@@ -152,8 +166,7 @@ const SourdoughApp: React.FC = () => {
           setBakes(MOCK_BAKES);
         }
       } catch (err: any) {
-        const msg = err.message || 'Network connection failed';
-        setDbError(msg);
+        setDbError(err.message);
         setBakes(MOCK_BAKES);
       } finally {
         setLoading(false);
@@ -165,8 +178,7 @@ const SourdoughApp: React.FC = () => {
 
   const toggleLanguage = () => {
     const currentLang = i18n.language || 'en';
-    const nextLang = currentLang.startsWith('en') ? 'lt' : 'en';
-    i18n.changeLanguage(nextLang);
+    i18n.changeLanguage(currentLang.startsWith('en') ? 'lt' : 'en');
   };
 
   const handleLogin = (e: React.FormEvent) => {
@@ -182,24 +194,28 @@ const SourdoughApp: React.FC = () => {
     }
   };
 
+  const handleSocialSignIn = async (provider: 'google' | 'facebook') => {
+    if (!supabase) return;
+    await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: window.location.origin }
+    });
+  };
+
   const addBake = async (newBake: BakeEntry) => {
     if (!isConfigured || !supabase) {
       setBakes([newBake, ...bakes]);
       return;
     }
-    try {
-      const { error } = await supabase.from('bakes').upsert(newBake);
-      if (error) throw error;
-      setBakes([newBake, ...bakes]);
-    } catch (err: any) {
-      alert(`Cloud save failed: ${err.message}`);
-    }
+    const { error } = await supabase.from('bakes').upsert(newBake);
+    if (error) alert(`Cloud save failed: ${error.message}`);
+    else setBakes([newBake, ...bakes]);
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-[#fffaf0] flex flex-col items-center justify-center p-8 space-y-8">
-        <div className="w-32 h-32 bg-yellow-400 rounded-full border-8 border-black flex items-center justify-center text-6xl animate-spin-slow">🥯</div>
+        <div className="w-32 h-32 bg-yellow-400 rounded-full border-8 border-black flex items-center justify-center text-6xl animate-spin-slow shadow-[10px_10px_0px_0px_#000]">🥯</div>
         <h2 className="text-4xl font-black text-black uppercase tracking-tighter animate-pulse">Fermenting...</h2>
       </div>
     );
@@ -215,11 +231,6 @@ const SourdoughApp: React.FC = () => {
             <ShieldAlert size={12} /> {t('missing_keys')} - Local Mode
           </div>
         )}
-        {dbError && (
-          <div className="bg-red-500 text-white border-b-4 border-black p-2 text-center text-[10px] font-black uppercase tracking-widest">
-            <Database size={12} className="inline mr-2" /> Error: {dbError}
-          </div>
-        )}
 
         {showLogin && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
@@ -227,9 +238,7 @@ const SourdoughApp: React.FC = () => {
               <button onClick={() => setShowLogin(false)} className="absolute -top-4 -right-4 bg-white border-4 border-black p-2 rounded-full hover:rotate-90 transition-transform">
                 <X size={24} />
               </button>
-              <div className="text-center">
-                <h2 className="text-3xl font-black uppercase tracking-tighter text-black">{t('login_owner')}</h2>
-              </div>
+              <h2 className="text-3xl font-black uppercase tracking-tighter text-black text-center">{t('login_owner')}</h2>
               <form onSubmit={handleLogin} className="space-y-4">
                 <input 
                   type="password" 
@@ -265,16 +274,25 @@ const SourdoughApp: React.FC = () => {
                 <Layers size={18} /> <span className="hidden sm:inline">{t('nav_lab')}</span>
               </Link>
               
-              <button 
-                onClick={toggleLanguage}
-                className="sticker-card bg-pink-100 px-3 py-1 rounded-full text-xs font-black border-2 border-black hover:bg-pink-200 transition-colors flex items-center gap-2"
-              >
-                <Globe size={14} />
-                {currentLangCode}
+              <button onClick={toggleLanguage} className="sticker-card bg-pink-100 px-3 py-1 rounded-full text-xs font-black border-2 border-black hover:bg-pink-200 flex items-center gap-2">
+                <Globe size={14} /> {currentLangCode}
               </button>
 
+              {session ? (
+                <div className="flex items-center gap-2">
+                  <img src={session.user.user_metadata.avatar_url} className="w-8 h-8 rounded-full border-2 border-black hidden md:block" alt="User" />
+                  <button onClick={() => supabase?.auth.signOut()} className="p-2 border-2 border-black rounded-full hover:bg-red-50 text-red-500 transition-colors">
+                    <LogOut size={16} />
+                  </button>
+                </div>
+              ) : (
+                <button onClick={() => handleSocialSignIn('google')} className="sticker-card bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-black border-2 border-black hover:bg-blue-600 transition-colors flex items-center gap-2">
+                  <User size={14} /> <span className="hidden md:inline">{t('sign_in')}</span>
+                </button>
+              )}
+
               {isLoggedIn && (
-                <Link to="/new" className="bg-orange-500 text-white border-2 border-black px-4 py-1 rounded-full font-black text-sm flex items-center gap-2 hover:bg-orange-600 transition-all shadow-[3px_3px_0px_0px_#000]">
+                <Link to="/new" className="bg-orange-500 text-white border-2 border-black px-4 py-1 rounded-full font-black text-sm flex items-center gap-2 hover:bg-orange-600 shadow-[3px_3px_0px_0px_#000]">
                   <PlusCircle size={16} /> <span className="hidden lg:inline">{t('nav_new')}</span>
                 </Link>
               )}
@@ -290,7 +308,7 @@ const SourdoughApp: React.FC = () => {
           <Suspense fallback={<div className="flex items-center justify-center p-20"><Loader2 className="animate-spin text-orange-500" size={48} /></div>}>
             <Routes>
               <Route path="/" element={<BakeListPage bakes={bakes} />} />
-              <Route path="/bakes/:id" element={<BakeDetailPage bakes={bakes} />} />
+              <Route path="/bakes/:id" element={<BakeDetailPage bakes={bakes} session={session} />} />
               <Route path="/calculator" element={<CalculatorPage />} />
               <Route path="/new" element={isLoggedIn ? <CreateBakePage onAdd={addBake} /> : <Navigate to="/" replace />} />
             </Routes>
