@@ -100,8 +100,22 @@ i18nInstance
   });
 
 // --- Supabase Setup ---
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+// --- Enhanced Environment Variable Loading ---
+const getEnvVar = (name: string): string | undefined => {
+  // Try import.meta.env (Vite)
+  // @ts-ignore
+  if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[name]) {
+    // @ts-ignore
+    return import.meta.env[name];
+  }
+  // Try process.env
+  if (typeof process !== 'undefined' && process.env && process.env[name]) {
+    return process.env[name];
+  }
+  return undefined;
+};
+const SUPABASE_URL = getEnvVar('VITE_NEXT_PUBLIC_SUPABASE_URL') || getEnvVar('NEXT_PUBLIC_SUPABASE_URL');
+const SUPABASE_ANON_KEY = getEnvVar('VITE_NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY') || getEnvVar('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY');
 
 const isConfigured = !!(SUPABASE_URL && SUPABASE_ANON_KEY && 
                         SUPABASE_URL !== 'https://your-project.supabase.co' && 
