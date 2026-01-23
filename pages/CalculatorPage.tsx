@@ -23,7 +23,7 @@ const CalculatorPage: React.FC = () => {
   useEffect(() => {
     document.title = `${t('nav_lab')} | ${t('app_name')}`;
   }, [t]);
-
+ debugger;
   const waterWeight = (flour * hydration) / 100;
   const starterWeight = (flour * starter) / 100;
   const saltWeight = (flour * salt) / 100;

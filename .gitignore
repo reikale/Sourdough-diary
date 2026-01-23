@@ -1,6 +1,9 @@
 # Dependencies
 /node_modules
 
+# IDX files
+.idx
+
 # Vite
 dist/
 build/

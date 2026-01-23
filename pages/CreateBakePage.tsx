@@ -47,6 +47,7 @@ const CreateBakePage: React.FC<Props> = ({ onAdd }) => {
   };
 
   const setStepImage = (id: string) => {
+    // fix this
     const url = `https://picsum.photos/seed/${Math.random()}/800/600`;
     updateStep(id, 'image', url);
   };
@@ -168,16 +169,7 @@ const CreateBakePage: React.FC<Props> = ({ onAdd }) => {
 
         {/* Timeline Log */}
         <section className="space-y-12">
-          <div className="flex items-center justify-between">
-            <h2 className="text-6xl font-black text-black tracking-tighter uppercase">The Journey Log.</h2>
-            <button 
-              type="button"
-              onClick={addTimelineStep}
-              className="bg-black text-white px-10 py-4 rounded-full font-black text-2xl flex items-center gap-4 hover:bg-gray-800 shadow-[8px_8px_0px_0px_#facc15] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
-            >
-              <Plus size={32} /> New Step
-            </button>
-          </div>
+          
 
           <div className="space-y-12 relative">
             <div className="absolute left-10 md:left-14 top-0 bottom-0 w-4 bg-black rounded-full"></div>
@@ -249,6 +241,18 @@ const CreateBakePage: React.FC<Props> = ({ onAdd }) => {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* New step Button */}
+          <div className="flex items-center justify-between">
+            <h2 className="text-6xl font-black text-black tracking-tighter uppercase">The Journey Log.</h2>
+            <button 
+              type="button"
+              onClick={addTimelineStep}
+              className="bg-black text-white px-10 py-4 rounded-full font-black text-2xl flex items-center gap-4 hover:bg-gray-800 shadow-[8px_8px_0px_0px_#facc15] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+            >
+              <Plus size={32} /> New Step
+            </button>
           </div>
         </section>
 
