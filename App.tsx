@@ -217,13 +217,30 @@ const SourdoughApp: React.FC = () => {
   };
 
   const addBake = async (newBake: BakeEntry) => {
+    const updateBakesState = () => {
+        const bakeIndex = bakes.findIndex(b => b.id === newBake.id);
+        if (bakeIndex !== -1) {
+            // Update existing bake
+            const newBakes = [...bakes];
+            newBakes[bakeIndex] = newBake;
+            setBakes(newBakes);
+        } else {
+            // Add new bake to the start of the list
+            setBakes([newBake, ...bakes]);
+        }
+    };
+
     if (!isConfigured || !supabase) {
-      setBakes([newBake, ...bakes]);
-      return;
+        updateBakesState();
+        return;
     }
+
     const { error } = await supabase.from('bakes').upsert(newBake);
-    if (error) alert(`Cloud save failed: ${error.message}`);
-    else setBakes([newBake, ...bakes]);
+    if (error) {
+        alert(`Cloud save failed: ${error.message}`);
+    } else {
+        updateBakesState();
+    }
   };
 
   if (loading) {
@@ -324,7 +341,8 @@ const SourdoughApp: React.FC = () => {
               <Route path="/" element={<BakeListPage bakes={bakes} />} />
               <Route path="/bakes/:id" element={<BakeDetailPage bakes={bakes} session={session} />} />
               <Route path="/calculator" element={<CalculatorPage />} />
-              <Route path="/new" element={isLoggedIn ? <CreateBakePage onAdd={addBake} /> : <Navigate to="/" replace />} />
+              <Route path="/new" element={isLoggedIn ? <CreateBakePage onAdd={addBake} bakes={bakes} /> : <Navigate to="/" replace />} />
+              <Route path="/bakes/:id/edit" element={isLoggedIn ? <CreateBakePage onAdd={addBake} bakes={bakes} /> : <Navigate to="/" replace />} />
             </Routes>
           </Suspense>
         </main>

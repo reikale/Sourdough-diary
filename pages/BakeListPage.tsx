@@ -1,9 +1,9 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { BakeEntry } from '../types';
-import { Thermometer, Calendar, ArrowRight, Sparkles, Wind } from 'lucide-react';
+import { Thermometer, Calendar, ArrowRight, Sparkles, Wind, Edit, EyeOff } from 'lucide-react';
 
 interface Props {
   bakes: BakeEntry[];
@@ -11,10 +11,15 @@ interface Props {
 
 const BakeListPage: React.FC<Props> = ({ bakes }) => {
   const { t } = useTranslation();
+  // TODO: Replace with real authentication state
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   useEffect(() => {
     document.title = `${t('app_name')} | ${t('subtitle')}`;
   }, [t]);
+
+  const publishedBakes = bakes.filter(b => b.status === 'published');
+  const draftBakes = bakes.filter(b => b.status === 'draft');
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 space-y-24">
@@ -38,9 +43,39 @@ const BakeListPage: React.FC<Props> = ({ bakes }) => {
         </div>
       </section>
 
+      {/* Drafts Section (Logged In Only) */}
+      {isLoggedIn && draftBakes.length > 0 && (
+        <section className="space-y-8">
+          <div className="flex items-center gap-4">
+             <h2 className="text-4xl font-black text-black tracking-tighter uppercase">Recipes in Progress</h2>
+             <span className="bg-yellow-100 text-yellow-800 text-xs font-bold me-2 px-2.5 py-0.5 rounded-full border-2 border-black">DRAFTS</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {draftBakes.map(bake => (
+              <Link key={bake.id} to={`/bakes/${bake.id}/edit`} className="group">
+                <article className="sticker-card h-full flex flex-col overflow-hidden bg-white rounded-2xl border-4 border-dashed border-black hover:border-solid hover:shadow-lg transition-all">
+                  <div className="p-6 space-y-4">
+                    <h3 className="text-2xl font-black text-black leading-none tracking-tighter uppercase group-hover:text-orange-500 transition-colors">
+                      {bake.title || 'Untitled Recipe'}
+                    </h3>
+                    <p className="text-sm text-gray-500 font-bold">
+                      Last updated: {new Date(bake.date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="mt-auto p-4 bg-gray-50 border-t-4 border-dashed border-black flex items-center justify-between text-xs font-black uppercase">
+                    <div className="flex items-center gap-2 text-yellow-700"><EyeOff size={14} /> Not Published</div>
+                    <div className="flex items-center gap-2"><Edit size={14}/> Edit</div>
+                  </div>
+                </article>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Bake Feed */}
       <section className="grid grid-cols-1 md:grid-cols-12 gap-10">
-        {bakes.map((bake, index) => {
+        {publishedBakes.map((bake, index) => {
           const isBig = index % 3 === 0;
           return (
             <Link 

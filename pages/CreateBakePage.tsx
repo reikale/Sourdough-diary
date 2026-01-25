@@ -1,17 +1,26 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { BakeEntry, TimelineStep } from '../types';
-import { Plus, Trash2, Save, Sparkles, Clock, FlaskConical, Camera, X, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Save, Sparkles, Clock, FlaskConical, Camera, X, Loader2, Upload, CheckCircle2, AlertCircle } from 'lucide-react';
 import { MOCK_BAKES } from '../constants';
+import { supabase } from '../App';
 
 interface Props {
   onAdd: (bake: BakeEntry) => Promise<void>;
+  bakes: BakeEntry[];
 }
 
-const CreateBakePage: React.FC<Props> = ({ onAdd }) => {
+const CreateBakePage: React.FC<Props> = ({ onAdd, bakes }) => {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [publishStatus, setPublishStatus] = useState<'draft' | 'published'>('draft');
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingSteps, setUploadingSteps] = useState<Set<string>>(new Set());
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
   const [title, setTitle] = useState('');
   const [batchNumber, setBatchNumber] = useState(MOCK_BAKES.length + 1);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -22,10 +31,88 @@ const CreateBakePage: React.FC<Props> = ({ onAdd }) => {
   const [starter, setStarter] = useState(100);
   const [salt, setSalt] = useState(10);
   const [coverImage, setCoverImage] = useState('https://picsum.photos/seed/' + Math.random() + '/800/600');
-  
   const [timeline, setTimeline] = useState<TimelineStep[]>([
     { id: '1', time: '09:00', action: 'Feed Starter', notes: 'Starter is feeling hungry today!', image: '' }
   ]);
+
+  useEffect(() => {
+    if (id) {
+      const existingBake = bakes.find(b => b.id === id);
+      if (existingBake) {
+        setTitle(existingBake.title);
+        setBatchNumber(existingBake.batchNumber);
+        setDate(existingBake.date);
+        setIntro(existingBake.intro);
+        setTemp(existingBake.kitchenTemp);
+        setFlour(existingBake.percentages.flour);
+        setWater(existingBake.percentages.water);
+        setStarter(existingBake.percentages.starter);
+        setSalt(existingBake.percentages.salt);
+        setCoverImage(existingBake.coverImage);
+        setTimeline(existingBake.timeline);
+      }
+    }
+  }, [id, bakes]);
+  
+ // Reusable upload helper
+ const uploadFile = async (file: File, folder: string): Promise<string> => {
+  if (!supabase) throw new Error("Supabase not configured.");
+  
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+  const filePath = `${folder}/${fileName}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('bakes')
+    .upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: false
+    });
+
+  if (uploadError) throw uploadError;
+
+  const { data } = supabase.storage
+    .from('bakes')
+    .getPublicUrl(filePath);
+
+  return data.publicUrl;
+};
+
+const handleCoverUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  setUploadingCover(true);
+  setUploadError(null);
+
+  try {
+    const url = await uploadFile(file, 'covers');
+    setCoverImage(url);
+  } catch (error: any) {
+    setUploadError(`Cover Upload Failed: ${error.message}`);
+  } finally {
+    setUploadingCover(false);
+  }
+};
+
+const handleStepImageUpload = async (stepId: string, event: React.ChangeEvent<HTMLInputElement>) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  setUploadingSteps(prev => new Set(prev).add(stepId));
+  try {
+    const url = await uploadFile(file, 'steps');
+    updateStep(stepId, 'image', url);
+  } catch (error: any) {
+    alert(`Step image upload failed: ${error.message}`);
+  } finally {
+    setUploadingSteps(prev => {
+      const next = new Set(prev);
+      next.delete(stepId);
+      return next;
+    });
+  }
+};
 
   const addTimelineStep = () => {
     const newStep: TimelineStep = {
@@ -52,11 +139,12 @@ const CreateBakePage: React.FC<Props> = ({ onAdd }) => {
     updateStep(id, 'image', url);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, status: 'draft' | 'published') => {
     e.preventDefault();
     setSubmitting(true);
+    setPublishStatus(status);
     const newBake: BakeEntry = {
-      id: Date.now().toString(),
+      id: id || Date.now().toString(),
       title,
       batchNumber,
       date,
@@ -64,7 +152,8 @@ const CreateBakePage: React.FC<Props> = ({ onAdd }) => {
       kitchenTemp: temp,
       percentages: { flour, water, starter, salt },
       timeline,
-      coverImage
+      coverImage,
+      status
     };
     
     try {
@@ -84,12 +173,12 @@ const CreateBakePage: React.FC<Props> = ({ onAdd }) => {
           <Sparkles size={18} /> SECRET ADMIN PANEL
         </div>
         <h1 className="text-7xl md:text-8xl font-black text-black tracking-tighter uppercase leading-none">
-          Document <br/> <span className="text-orange-500">The Magic.</span>
+          {id ? 'Edit' : 'Document'} <br/> <span className="text-orange-500">The Magic.</span>
         </h1>
         <p className="text-3xl handwriting text-gray-500 font-bold">Log today's fermentation journey...</p>
       </div>
       
-      <form onSubmit={handleSubmit} className="space-y-20">
+      <form className="space-y-20">
         {/* Core Details */}
         <section className="sticker-card bg-white p-12 rounded-[3rem] space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -115,14 +204,57 @@ const CreateBakePage: React.FC<Props> = ({ onAdd }) => {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Cover Image URL</label>
-                <div className="flex gap-4">
-                  <input type="text" className="flex-1 bg-gray-50 border-4 border-black rounded-2xl px-6 py-4 font-bold" value={coverImage} onChange={(e) => setCoverImage(e.target.value)} />
-                  <button type="button" onClick={() => setCoverImage(`https://picsum.photos/seed/${Math.random()}/800/600`)} className="bg-black text-white p-4 rounded-2xl"><Camera /></button>
+              {/* Cover Image Upload */}
+              <div className="space-y-4">
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Cover Image</label>
+                
+                <div 
+                  onClick={() => !uploadingCover && fileInputRef.current?.click()}
+                  className={`relative h-64 border-4 border-dashed rounded-[2rem] flex flex-col items-center justify-center cursor-pointer transition-all overflow-hidden ${
+                    coverImage ? 'border-green-400' : 'border-black hover:bg-yellow-50'
+                  } ${uploadingCover ? 'cursor-not-allowed' : ''}`}
+                >
+                  {uploadingCover ? (
+                    <div className="text-center space-y-4">
+                      <Loader2 size={48} className="animate-spin text-orange-500 mx-auto" />
+                      <p className="font-black uppercase text-sm tracking-widest">Rising...</p>
+                    </div>
+                  ) : coverImage ? (
+                    <>
+                      <img src={coverImage} className="absolute inset-0 w-full h-full object-cover" alt="Cover Preview" />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                        <Upload className="text-white" size={48} />
+                      </div>
+                      <div className="absolute top-4 right-4 bg-green-500 text-white p-2 rounded-full border-2 border-black shadow-[2px_2px_0px_0px_#000]">
+                        <CheckCircle2 size={20} />
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center space-y-4 p-8">
+                      <div className="w-20 h-20 bg-orange-100 rounded-3xl flex items-center justify-center mx-auto border-4 border-black shadow-[4px_4px_0px_0px_#000]">
+                        <Camera className="text-orange-500" size={32} />
+                      </div>
+                      <p className="font-black text-xl uppercase tracking-tighter">Click to upload photo</p>
+                      <p className="text-gray-400 handwriting text-lg">Your loaf deserves to be seen!</p>
+                    </div>
+                  )}
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    className="hidden" 
+                    accept="image/*" 
+                    onChange={handleCoverUpload} 
+                  />
                 </div>
+
+                {uploadError && (
+                  <div className="flex items-center gap-2 text-red-500 font-black text-xs uppercase bg-red-50 p-4 rounded-2xl border-2 border-red-200">
+                    <AlertCircle size={14} /> {uploadError}
+                  </div>
+                )}
               </div>
             </div>
+            
             
             <div className="space-y-8">
                <div>
@@ -169,7 +301,6 @@ const CreateBakePage: React.FC<Props> = ({ onAdd }) => {
 
         {/* Timeline Log */}
         <section className="space-y-12">
-          
 
           <div className="space-y-12 relative">
             <div className="absolute left-10 md:left-14 top-0 bottom-0 w-4 bg-black rounded-full"></div>
@@ -255,20 +386,36 @@ const CreateBakePage: React.FC<Props> = ({ onAdd }) => {
             </button>
           </div>
         </section>
-
+        {/* TODO: Add verdict section */}
         {/* Final Save Button */}
+        <div className="flex gap-4">
         <button 
           type="submit"
           disabled={submitting}
-          className="w-full bg-black text-white py-12 rounded-[4rem] text-5xl font-black shadow-[20px_20px_0px_0px_#facc15] hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all flex items-center justify-center gap-8 group active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={(e) => handleSubmit(e, 'draft')}
+          className="w-full bg-gray-200 text-black py-8 rounded-[3rem] text-3xl font-black shadow-[10px_10px_0px_0px_#000] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all flex items-center justify-center gap-4 group active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {submitting ? (
-            <Loader2 size={64} className="animate-spin text-yellow-400" />
+          {submitting && publishStatus === 'draft' ? (
+            <Loader2 size={48} className="animate-spin" />
           ) : (
-            <Save size={64} className="group-hover:rotate-12 transition-transform" /> 
+            <Save size={48} className="group-hover:rotate-12 transition-transform" /> 
           )}
-          {submitting ? 'FERMENTING...' : 'PUBLISH BAKE'}
+          {submitting && publishStatus === 'draft' ? 'SAVING...' : 'SAVE DRAFT'}
         </button>
+        <button 
+          type="submit"
+          disabled={submitting}
+          onClick={(e) => handleSubmit(e, 'published')}
+          className="w-full bg-black text-white py-8 rounded-[3rem] text-3xl font-black shadow-[10px_10px_0px_0px_#facc15] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all flex items-center justify-center gap-4 group active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {submitting && publishStatus === 'published' ? (
+            <Loader2 size={48} className="animate-spin text-yellow-400" />
+          ) : (
+            <Sparkles size={48} className="group-hover:scale-125 transition-transform" /> 
+          )}
+          {submitting && publishStatus === 'published' ? 'PUBLISHING...' : 'PUBLISH BAKE'}
+        </button>
+        </div>
       </form>
     </div>
   );

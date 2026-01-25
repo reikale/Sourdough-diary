@@ -24,6 +24,7 @@ export interface BakeEntry {
   percentages: BakersPercentage;
   timeline: TimelineStep[];
   coverImage: string;
+  status: 'draft' | 'published';
 }
 
 export interface BakeComment {
