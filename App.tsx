@@ -1,13 +1,11 @@
-
 import React, { useState, useEffect, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { 
-  BookOpen, PlusCircle, Layers, Heart, Lock, Unlock, X, Check, 
-  Cloud, AlertCircle, Database, ShieldAlert, Globe, Loader2, LogOut, User 
+  BookOpen, PlusCircle, Layers, Lock, Unlock, X, Check, 
+  Cloud, ShieldAlert, Globe, Loader2, LogOut, User 
 } from 'lucide-react';
-import { createClient, Session, User as SupabaseUser } from '@supabase/supabase-js';
-import i18next from 'i18next';
-import { initReactI18next, useTranslation, I18nextProvider } from 'react-i18next';
+import { createClient, Session } from '@supabase/supabase-js';
+import { useTranslation } from 'react-i18next';
 
 import BakeListPage from './pages/BakeListPage';
 import BakeDetailPage from './pages/BakeDetailPage';
@@ -15,89 +13,7 @@ import CalculatorPage from './pages/CalculatorPage';
 import CreateBakePage from './pages/CreateBakePage';
 import { BakeEntry } from './types';
 import { MOCK_BAKES } from './constants';
-
-// --- i18n Configuration ---
-const resources = {
-  en: {
-    translation: {
-      "app_name": "Sourdough Diary",
-      "subtitle": "Stories from the Starter",
-      "nav_blog": "The Blog",
-      "nav_lab": "The Lab",
-      "nav_new": "Log Entry",
-      "hero_title": "Breads of my Dreams",
-      "hero_desc": "A personal corner where I document my sourdough experiments, failures, and successes.",
-      "calculator_title": "Bread Lab",
-      "calculator_desc": "Measure twice, mix once! 🥄",
-      "calc_dough_builder": "Dough Builder",
-      "calc_starter_prep": "Starter Prep",
-      "calc_total_flour": "Total Flour (g)",
-      "calc_hydration": "Hydration",
-      "calc_starter": "Starter",
-      "calc_final_mix": "Final Mix",
-      "batch_no": "Batch",
-      "kitchen_temp": "Kitchen Air",
-      "footer_slogan": "Bread is Life.",
-      "footer_sub": "Fermented with patience since 2023",
-      "login_owner": "Owner Entry",
-      "local_mode": "Local Storage Mode",
-      "cloud_mode": "Cloud Synchronized",
-      "missing_keys": "Missing Environment Variables",
-      "read_more": "Read Diary",
-      "sign_in": "Sign In",
-      "sign_out": "Sign Out",
-      "comments_title": "The Chatty Corner",
-      "comment_placeholder": "Leave a floury thought...",
-      "post_comment": "Post Comment",
-      "login_to_comment": "Join the conversation! Log in to comment."
-    }
-  },
-  lt: {
-    translation: {
-      "app_name": "Raugo Dienoraštis",
-      "subtitle": "Istorijos iš stiklainio",
-      "nav_blog": "Tinklaraštis",
-      "nav_lab": "Laboratorija",
-      "nav_new": "Naujas Įrašas",
-      "hero_title": "Mano Svajonių Duona",
-      "hero_desc": "Asmeninis kampelis, kuriame fiksuoju savo naminės duonos eksperimentus, nesėkmes ir traškias pergales.",
-      "calculator_title": "Duonos Laboratorija",
-      "calculator_desc": "Matuok du kartus, maišyk vieną! 🥄",
-      "calc_dough_builder": "Tešlos Konstruktorius",
-      "calc_starter_prep": "Raugo Ruošimas",
-      "calc_total_flour": "Miltai (g)",
-      "calc_hydration": "Hidratacija",
-      "calc_starter": "Raugas",
-      "calc_final_mix": "Galutinis Svoris",
-      "batch_no": "Partija",
-      "kitchen_temp": "Virtuvės Temp.",
-      "footer_slogan": "Duona yra Gyvenimas.",
-      "footer_sub": "Rūpestingai kildinama nuo 2023",
-      "login_owner": "Savininko Įėjimas",
-      "local_mode": "Vietinė Saugykla",
-      "cloud_mode": "Debesų Sinchronizacija",
-      "missing_keys": "Trūksta aplinkos kintamųjų",
-      "read_more": "Skaityti Dienoraštį",
-      "sign_in": "Prisijungti",
-      "sign_out": "Atsijungti",
-      "comments_title": "Pokalbių Kampelis",
-      "comment_placeholder": "Palikite miltuotą mintį...",
-      "post_comment": "Komentuoti",
-      "login_to_comment": "Prisijunk prie pokalbio! Prisijunk, kad galėtum komentuoti."
-    }
-  }
-};
-
-const i18nInstance = i18next.createInstance();
-i18nInstance
-  .use(initReactI18next)
-  .init({
-    resources,
-    lng: "en",
-    fallbackLng: "en",
-    interpolation: { escapeValue: false },
-    react: { useSuspense: false }
-  });
+import './i18n/config';
 
 // --- Supabase Setup ---
 // --- Enhanced Environment Variable Loading ---
@@ -191,6 +107,7 @@ const SourdoughApp: React.FC = () => {
   }, []);
 
   const toggleLanguage = () => {
+    debugger;
     const currentLang = i18n.language || 'en';
     i18n.changeLanguage(currentLang.startsWith('en') ? 'lt' : 'en');
   };
@@ -364,9 +281,7 @@ const SourdoughApp: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <I18nextProvider i18n={i18nInstance}>
-      <SourdoughApp />
-    </I18nextProvider>
+    <SourdoughApp />
   );
 };
 
