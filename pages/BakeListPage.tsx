@@ -7,12 +7,13 @@ import { Thermometer, Calendar, ArrowRight, Sparkles, Wind, Edit, EyeOff } from 
 
 interface Props {
   bakes: BakeEntry[];
+  isLoggedIn: boolean;
 }
 
-const BakeListPage: React.FC<Props> = ({ bakes }) => {
+const BakeListPage: React.FC<Props> = ({ bakes, isLoggedIn}) => {
   const { t } = useTranslation();
   // TODO: Replace with real authentication state
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  //const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     document.title = `${t('app_name')} | ${t('subtitle')}`;

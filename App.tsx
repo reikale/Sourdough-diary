@@ -107,7 +107,6 @@ const SourdoughApp: React.FC = () => {
   }, []);
 
   const toggleLanguage = () => {
-    debugger;
     const currentLang = i18n.language || 'en';
     i18n.changeLanguage(currentLang.startsWith('en') ? 'lt' : 'en');
   };
@@ -255,7 +254,7 @@ const SourdoughApp: React.FC = () => {
         <main className="flex-grow w-full py-8">
           <Suspense fallback={<div className="flex items-center justify-center p-20"><Loader2 className="animate-spin text-orange-500" size={48} /></div>}>
             <Routes>
-              <Route path="/" element={<BakeListPage bakes={bakes} />} />
+              <Route path="/" element={<BakeListPage bakes={bakes} isLoggedIn={isLoggedIn} />} />
               <Route path="/bakes/:id" element={<BakeDetailPage bakes={bakes} session={session} />} />
               <Route path="/calculator" element={<CalculatorPage />} />
               <Route path="/new" element={isLoggedIn ? <CreateBakePage onAdd={addBake} bakes={bakes} /> : <Navigate to="/" replace />} />

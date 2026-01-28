@@ -28,5 +28,9 @@
     "comments_title": "Pokalbių Kampelis",
     "comment_placeholder": "Palikite miltuotą mintį...",
     "post_comment": "Rašyti komentarą",
-    "login_to_comment": "Prisijunk prie pokalbio! Prisijunk, kad galėtum komentuoti."
+    "login_to_comment": "Prisijunk prie pokalbio! Prisijunk, kad galėtum komentuoti.",
+    "ingredient_flour": "Miltai",
+    "ingredient_water": "Vanduo",
+    "ingredient_starter": "Raugas",
+    "ingredient_salt": "Druska"
   }

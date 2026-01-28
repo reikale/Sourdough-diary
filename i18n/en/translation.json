@@ -28,5 +28,9 @@
     "comments_title": "The Chatty Corner",
     "comment_placeholder": "Leave a floury thought...",
     "post_comment": "Post Comment",
-    "login_to_comment": "Join the conversation! Log in to comment."
+    "login_to_comment": "Join the conversation! Log in to comment.",
+    "ingredient_flour": "Flour",
+    "ingredient_water": "Water",
+    "ingredient_starter": "Starter",
+    "ingredient_salt": "Salt"
   }
