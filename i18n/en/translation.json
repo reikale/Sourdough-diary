@@ -45,5 +45,10 @@
     "BakeListPage_lastUpdated": "Last updated",
     "BakeListPage_NotPublished": "Not published",
     "BakeListPage_Edit": "Edit",
-    "App_Loading_lbl": "Fermenting..."
+    "App_Loading_lbl": "Fermenting...",
+    "BakeDetailPage_Verdict": "Verdict.",
+    "BakeDetailPage_BakeNotFound": "Bake not found!",
+    "BakeDetailPage_Flow": "The flow.",
+    "BakeDetailPage_NoComments": "No voices here yet. Be the first!",
+    "BakeDetailPage_Loading": "Gathering the crumbs..."
   }

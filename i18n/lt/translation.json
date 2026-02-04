@@ -21,7 +21,7 @@
     "CalculatorPage_activeLevain_result": "Aktyvaus įmaišo",
     "CalculatorPage_final_mix": "Galutinis Svoris",
     "BakeListPage_batch_no": "Partija",
-    "kitchen_temp": "Virtuvės Temp.",
+    "BakeDetailPage_kitchen_temp": "Virtuvės Temp.",
     "App_footer_slogan": "Duona yra Gyvenimas.",
     "App_footer_sub": "Rūpestingai kildinama nuo 2026",
     "App_login_owner": "Savininko Įėjimas",
@@ -45,5 +45,10 @@
     "BakeListPage_lastUpdated": "Paskutinį kartą redaguota",
     "BakeListPage_NotPublished": "Nepublikuota",
     "BakeListPage_Edit": "Redaguoti",
-    "App_Loading_lbl": "Fermentuojasi..."
+    "App_Loading_lbl": "Fermentuojasi...",
+    "BakeDetailPage_Verdict": "Verdiktas.",
+    "BakeDetailPage_BakeNotFound": "Kepalas nerastas!",
+    "BakeDetailPage_Flow": "Eiga.",
+    "BakeDetailPage_NoComments": "Nesigirdi balsų. Būk pirmas!",
+    "BakeDetailPage_Loading": "Renkami trupiniai..."
   }

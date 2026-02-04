@@ -7,8 +7,8 @@ import { BakeEntry, BakeComment } from '../types';
 import { supabase } from '../App';
 // Added Loader2 to the list of icons imported from lucide-react
 import { 
-  ArrowLeft, Clock, Thermometer, Calendar, Droplets, 
-  Layers, Heart, Scissors, MessageCircle, Send, LogIn,
+  ArrowLeft, Thermometer, Calendar, Droplets, 
+  Layers, Heart, Scissors, Send, 
   MessageSquare, Loader2
 } from 'lucide-react';
 
@@ -96,7 +96,7 @@ const BakeDetailPage: React.FC<Props> = ({ bakes, session }) => {
     return (
       <div className="max-w-7xl mx-auto px-4 py-32 text-center space-y-8">
         <div className="text-9xl animate-bounce">🫙</div>
-        <h2 className="text-6xl font-black text-black tracking-tighter">Bake not found!</h2>
+        <h2 className="text-6xl font-black text-black tracking-tighter">{t('BakeDetailPage_BakeNotFound')}</h2>
         <Link to="/" className="inline-block bg-black text-white px-10 py-4 rounded-full font-black text-2xl shadow-xl">Go Home</Link>
       </div>
     );
@@ -107,7 +107,7 @@ const BakeDetailPage: React.FC<Props> = ({ bakes, session }) => {
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 space-y-16 animate-in fade-in slide-in-from-bottom-12 duration-700">
       <Link to="/" className="inline-flex items-center gap-2 bg-white border-4 border-black px-6 py-2 rounded-full font-black text-xl hover:bg-yellow-50 transition-all shadow-[4px_4px_0px_0px_#000]">
-        <ArrowLeft size={24} /> {t('nav_blog')}
+        <ArrowLeft size={24} /> {t('App_nav_blog')}
       </Link>
 
       <article className="space-y-24">
@@ -116,7 +116,7 @@ const BakeDetailPage: React.FC<Props> = ({ bakes, session }) => {
           <div className="flex-1 space-y-8">
              <div className="flex flex-wrap items-center gap-4">
                 <span className="bg-orange-500 text-white border-4 border-black px-6 py-1 rounded-full font-black text-sm uppercase tracking-widest shadow-[4px_4px_0px_0px_#000]">
-                  {t('batch_no')} #{bake.batchNumber}
+                  {t('BakeListPage_batch_no')} #{bake.batchNumber}
                 </span>
                 <span className="bg-blue-100 text-blue-700 border-2 border-black px-4 py-1 rounded-full font-black text-sm uppercase">
                   <Calendar size={16} className="inline mr-1" /> {new Date(bake.date).toDateString()}
@@ -140,22 +140,22 @@ const BakeDetailPage: React.FC<Props> = ({ bakes, session }) => {
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="sticker-card bg-pink-100 p-8 rounded-3xl space-y-4 text-center transform hover:rotate-1">
             <Thermometer className="mx-auto text-pink-500" size={48} />
-            <div className="text-sm font-black uppercase tracking-widest text-pink-700">{t('kitchen_temp')}</div>
+            <div className="text-sm font-black uppercase tracking-widest text-pink-700">{t('BakeDetailPage_kitchen_temp')}</div>
             <div className="text-5xl font-black text-black">{bake.kitchenTemp}°C</div>
           </div>
           <div className="sticker-card bg-blue-100 p-8 rounded-3xl space-y-4 text-center transform hover:-rotate-1">
             <Droplets className="mx-auto text-blue-500" size={48} />
-            <div className="text-sm font-black uppercase tracking-widest text-blue-700">{t('calc_hydration')}</div>
+            <div className="text-sm font-black uppercase tracking-widest text-blue-700">{t('CalculatorPage_hydration')}</div>
             <div className="text-5xl font-black text-black">{hydration}%</div>
           </div>
           <div className="sticker-card bg-yellow-100 p-8 rounded-3xl space-y-4 text-center transform hover:rotate-1">
             <Layers className="mx-auto text-yellow-600" size={48} />
-            <div className="text-sm font-black uppercase tracking-widest text-yellow-800">{t('calc_total_flour')}</div>
+            <div className="text-sm font-black uppercase tracking-widest text-yellow-800">{t('CalculatorPage_total_flour')}</div>
             <div className="text-5xl font-black text-black">{bake.percentages.flour}g</div>
           </div>
           <div className="sticker-card bg-green-100 p-8 rounded-3xl space-y-4 text-center transform hover:-rotate-1">
             <Heart className="mx-auto text-green-500" size={48} />
-            <div className="text-sm font-black uppercase tracking-widest text-green-800">Salt</div>
+            <div className="text-sm font-black uppercase tracking-widest text-green-800">{t('BakeDetailsPage_BakersPerc_salt')}</div>
             <div className="text-5xl font-black text-black">{bake.percentages.salt}g</div>
           </div>
         </section>
@@ -182,7 +182,7 @@ const BakeDetailPage: React.FC<Props> = ({ bakes, session }) => {
         {/* Timeline Log */}
         <section className="space-y-12">
           <div className="flex items-center gap-8">
-            <h2 className="text-6xl font-black text-black tracking-tighter uppercase italic">The Flow.</h2>
+            <h2 className="text-6xl font-black text-black tracking-tighter uppercase italic">{t('BakeDetailPage_Flow')}</h2>
             <div className="h-4 bg-black flex-grow rounded-full shadow-[4px_4px_0px_0px_#facc15]"></div>
           </div>
           
@@ -218,9 +218,9 @@ const BakeDetailPage: React.FC<Props> = ({ bakes, session }) => {
         {/* Verdict */}
         <section className="bg-yellow-400 border-8 border-black p-12 md:p-20 rounded-[4rem] flex flex-col items-center text-center space-y-8 shadow-[20px_20px_0px_0px_#000]">
           <Scissors size={64} className="text-black" />
-          <h3 className="text-5xl font-black text-black tracking-tighter uppercase">Verdict.</h3>
+          <h3 className="text-5xl font-black text-black tracking-tighter uppercase">{t('BakeDetailPage_Verdict')}</h3>
           <p className="text-3xl handwriting text-black font-bold max-w-2xl">
-            This loaf was {bake.percentages.flour > 500 ? 'a big boy' : 'perfectly sized'}! The crust sang for a good 10 minutes. 10/10 would bake again.
+            {bake.verdict}
           </p>
         </section>
 
@@ -238,12 +238,12 @@ const BakeDetailPage: React.FC<Props> = ({ bakes, session }) => {
             <div className="space-y-10">
               {loadingComments ? (
                 <div className="flex items-center gap-4 text-2xl font-black uppercase animate-pulse">
-                  <Loader2 className="animate-spin" /> Gathering the crumbs...
+                  <Loader2 className="animate-spin" /> {t('BakeDetailPage_Loading')}
                 </div>
               ) : comments.length === 0 ? (
                 <div className="p-12 border-4 border-black border-dashed rounded-[3rem] text-center space-y-4">
                   <div className="text-6xl">🦗</div>
-                  <p className="text-2xl font-black text-gray-400 uppercase">No voices here yet. Be the first!</p>
+                  <p className="text-2xl font-black text-gray-400 uppercase">{t('BakeDetailPage_NoComments')}</p>
                 </div>
               ) : (
                 comments.map((comment, idx) => (

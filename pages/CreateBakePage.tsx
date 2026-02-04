@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BakeEntry, TimelineStep } from '../types';
@@ -34,6 +33,7 @@ const CreateBakePage: React.FC<Props> = ({ onAdd, bakes }) => {
   const [timeline, setTimeline] = useState<TimelineStep[]>([
     { id: '1', time: '09:00', action: 'Feed Starter', notes: 'Starter is feeling hungry today!', image: '' }
   ]);
+  const [verdict, setVerdict] = useState('');
 
   useEffect(() => {
     if (id) {
@@ -153,7 +153,8 @@ const handleStepImageUpload = async (stepId: string, event: React.ChangeEvent<HT
       percentages: { flour, water, starter, salt },
       timeline,
       coverImage,
-      status
+      status,
+      verdict
     };
     
     try {
@@ -387,6 +388,15 @@ const handleStepImageUpload = async (stepId: string, event: React.ChangeEvent<HT
           </div>
         </section>
         {/* TODO: Add verdict section */}
+        <section className="bg-yellow-400 border-8 border-black p-12 md:p-20 rounded-[4rem] flex flex-col items-center text-center space-y-8 shadow-[20px_20px_0px_0px_#000]">
+          <h2 className="text-6xl font-black text-black tracking-tighter uppercase">Verdict</h2>
+          <textarea 
+            placeholder="So what do you think?"
+            value={verdict}
+            onChange={(e) => setVerdict(e.target.value)}
+            className="w-full bg-gray-50 border-4 border-black border-dashed rounded-3xl p-6 text-xl handwriting font-bold text-gray-700 focus:bg-white transition-all min-h-[120px]"
+          />
+        </section>
         {/* Final Save Button */}
         <div className="flex gap-4">
         <button 

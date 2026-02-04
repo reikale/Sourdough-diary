@@ -25,6 +25,7 @@ export interface BakeEntry {
   timeline: TimelineStep[];
   coverImage: string;
   status: 'draft' | 'published';
+  verdict: string;
 }
 
 export interface BakeComment {
