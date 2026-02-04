@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BakeEntry, TimelineStep } from '../types';
-import { Plus, Trash2, Save, Sparkles, Clock, FlaskConical, Camera, X, Loader2, Upload, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, Save, Sparkles, FlaskConical, Camera, X, Loader2, Upload, CheckCircle2, AlertCircle } from 'lucide-react';
 import { MOCK_BAKES } from '../constants';
 import { supabase } from '../App';
 

@@ -113,7 +113,7 @@ const SourdoughApp: React.FC = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'sourdough') {
+    if (password === 'sourdough') { //todo: fix the password - set real one
       setIsLoggedIn(true);
       sessionStorage.setItem('is_owner', 'true');
       setShowLogin(false);
@@ -163,7 +163,7 @@ const SourdoughApp: React.FC = () => {
     return (
       <div className="min-h-screen bg-[#fffaf0] flex flex-col items-center justify-center p-8 space-y-8">
         <div className="w-32 h-32 bg-yellow-400 rounded-full border-8 border-black flex items-center justify-center text-6xl animate-spin-slow shadow-[10px_10px_0px_0px_#000]">🥯</div>
-        <h2 className="text-4xl font-black text-black uppercase tracking-tighter animate-pulse">Fermenting...</h2>
+        <h2 className="text-4xl font-black text-black uppercase tracking-tighter animate-pulse">{t('App_Loading_lbl')}</h2>
       </div>
     );
   }
@@ -175,7 +175,7 @@ const SourdoughApp: React.FC = () => {
       <div className="min-h-screen flex flex-col relative">
         {!isConfigured && (
           <div className="bg-orange-500 text-white border-b-4 border-black p-2 text-center text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-4">
-            <ShieldAlert size={12} /> {t('missing_keys')} - Local Mode
+            <ShieldAlert size={12} /> {t('App_missing_keys')} - Local Mode
           </div>
         )}
 
@@ -185,7 +185,7 @@ const SourdoughApp: React.FC = () => {
               <button onClick={() => setShowLogin(false)} className="absolute -top-4 -right-4 bg-white border-4 border-black p-2 rounded-full hover:rotate-90 transition-transform">
                 <X size={24} />
               </button>
-              <h2 className="text-3xl font-black uppercase tracking-tighter text-black text-center">{t('login_owner')}</h2>
+              <h2 className="text-3xl font-black uppercase tracking-tighter text-black text-center">{t('App_login_owner')}</h2>
               <form onSubmit={handleLogin} className="space-y-4">
                 <input 
                   type="password" 
@@ -208,17 +208,17 @@ const SourdoughApp: React.FC = () => {
             <Link to="/" className="flex items-center gap-4 group">
               <div className="w-12 h-12 rounded-full bg-yellow-400 border-4 border-black flex items-center justify-center text-white font-bold text-2xl group-hover:rotate-12 transition-transform shadow-[3px_3px_0px_0px_#000]">🥖</div>
               <div className="flex flex-col">
-                <span className="text-xl md:text-2xl font-black text-black leading-none uppercase tracking-tighter">{t('app_name')}</span>
-                <span className="text-[10px] font-bold text-orange-500 handwriting">{t('subtitle')}</span>
+                <span className="text-xl md:text-2xl font-black text-black leading-none uppercase tracking-tighter">{t('App_name')}</span>
+                <span className="text-[10px] font-bold text-orange-500 handwriting">{t('App_subtitle')}</span>
               </div>
             </Link>
             
             <div className="flex items-center gap-3 md:gap-6">
               <Link to="/" className="text-black hover:text-orange-500 font-black text-sm md:text-lg transition-colors flex items-center gap-2">
-                <BookOpen size={18} /> <span className="hidden sm:inline">{t('nav_blog')}</span>
+                <BookOpen size={18} /> <span className="hidden sm:inline">{t('App_nav_blog')}</span>
               </Link>
               <Link to="/calculator" className="text-black hover:text-blue-500 font-black text-sm md:text-lg transition-colors flex items-center gap-2">
-                <Layers size={18} /> <span className="hidden sm:inline">{t('nav_lab')}</span>
+                <Layers size={18} /> <span className="hidden sm:inline">{t('App_nav_lab')}</span>
               </Link>
               
               <button onClick={toggleLanguage} className="sticker-card bg-pink-100 px-3 py-1 rounded-full text-xs font-black border-2 border-black hover:bg-pink-200 flex items-center gap-2">
@@ -234,13 +234,13 @@ const SourdoughApp: React.FC = () => {
                 </div>
               ) : (
                 <button onClick={() => handleSocialSignIn('google')} className="sticker-card bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-black border-2 border-black hover:bg-blue-600 transition-colors flex items-center gap-2">
-                  <User size={14} /> <span className="hidden md:inline">{t('sign_in')}</span>
+                  <User size={14} /> <span className="hidden md:inline">{t('App_sign_in')}</span>
                 </button>
               )}
 
               {isLoggedIn && (
                 <Link to="/new" className="bg-orange-500 text-white border-2 border-black px-4 py-1 rounded-full font-black text-sm flex items-center gap-2 hover:bg-orange-600 shadow-[3px_3px_0px_0px_#000]">
-                  <PlusCircle size={16} /> <span className="hidden lg:inline">{t('nav_new')}</span>
+                  <PlusCircle size={16} /> <span className="hidden lg:inline">{t('App_nav_new')}</span>
                 </Link>
               )}
               
@@ -266,11 +266,11 @@ const SourdoughApp: React.FC = () => {
         <footer className="py-12 bg-black text-white text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-4 bg-white" style={{ clipPath: 'polygon(0 100%, 5% 0, 10% 100%, 15% 0, 20% 100%, 25% 0, 30% 100%, 35% 0, 40% 100%, 45% 0, 50% 100%, 55% 0, 60% 100%, 65% 0, 70% 100%, 75% 0, 80% 100%, 85% 0, 90% 100%, 95% 0, 100% 100%)' }}></div>
           <div className="max-w-4xl mx-auto px-4 space-y-4">
-            <h2 className="text-4xl font-black italic tracking-tighter">{t('footer_slogan')}</h2>
+            <h2 className="text-4xl font-black italic tracking-tighter">{t('App_footer_slogan')}</h2>
             <div className="flex items-center justify-center gap-2 text-orange-400/50 uppercase tracking-widest font-black text-[10px]">
               <Cloud size={10} /> {isConfigured ? t('cloud_mode') : t('local_mode')}
             </div>
-            <p className="font-black text-orange-400 text-sm uppercase tracking-widest handwriting italic">{t('footer_sub')}</p>
+            <p className="font-black text-orange-400 text-sm uppercase tracking-widest handwriting italic">{t('App_footer_sub')}</p>
           </div>
         </footer>
       </div>

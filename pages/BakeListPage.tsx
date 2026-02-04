@@ -16,7 +16,7 @@ const BakeListPage: React.FC<Props> = ({ bakes, isLoggedIn}) => {
   //const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    document.title = `${t('app_name')} | ${t('subtitle')}`;
+    document.title = `${t('App_name')} | ${t('App_subtitle')}`;
   }, [t]);
 
   const publishedBakes = bakes.filter(b => b.status === 'published');
@@ -28,13 +28,13 @@ const BakeListPage: React.FC<Props> = ({ bakes, isLoggedIn}) => {
       <section className="relative flex flex-col md:flex-row items-center gap-12 py-12">
         <div className="flex-1 space-y-8 text-center md:text-left">
           <div className="inline-block bg-pink-200 text-pink-700 px-6 py-2 rounded-full font-black border-2 border-black rotate-[-2deg] shadow-[4px_4px_0px_0px_#000]">
-            {t('app_name')}
+            {t('App_name')}
           </div>
           <h1 className="text-6xl md:text-8xl font-black text-black leading-[0.85] tracking-tighter uppercase">
-            {t('hero_title')}
+            {t('BakeListPage_hero_title')}
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 font-bold max-w-xl leading-snug">
-            {t('hero_desc')}
+            {t('BakeListPage_hero_desc')}
           </p>
         </div>
         <div className="flex-1 relative">
@@ -48,8 +48,8 @@ const BakeListPage: React.FC<Props> = ({ bakes, isLoggedIn}) => {
       {isLoggedIn && draftBakes.length > 0 && (
         <section className="space-y-8">
           <div className="flex items-center gap-4">
-             <h2 className="text-4xl font-black text-black tracking-tighter uppercase">Recipes in Progress</h2>
-             <span className="bg-yellow-100 text-yellow-800 text-xs font-bold me-2 px-2.5 py-0.5 rounded-full border-2 border-black">DRAFTS</span>
+             <h2 className="text-4xl font-black text-black tracking-tighter uppercase">{t('BakeListPage_recipesInProgress_lbl')}</h2>
+             <span className="bg-yellow-100 text-yellow-800 text-xs font-bold me-2 px-2.5 py-0.5 rounded-full border-2 border-black">{t("BakeListPage_recipesInProgress_draftBold_lbl")}</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {draftBakes.map(bake => (
@@ -60,12 +60,12 @@ const BakeListPage: React.FC<Props> = ({ bakes, isLoggedIn}) => {
                       {bake.title || 'Untitled Recipe'}
                     </h3>
                     <p className="text-sm text-gray-500 font-bold">
-                      Last updated: {new Date(bake.date).toLocaleDateString()}
+                      {t('BakeListPage_lastUpdated')}: {new Date(bake.date).toLocaleDateString()}
                     </p>
                   </div>
                   <div className="mt-auto p-4 bg-gray-50 border-t-4 border-dashed border-black flex items-center justify-between text-xs font-black uppercase">
-                    <div className="flex items-center gap-2 text-yellow-700"><EyeOff size={14} /> Not Published</div>
-                    <div className="flex items-center gap-2"><Edit size={14}/> Edit</div>
+                    <div className="flex items-center gap-2 text-yellow-700"><EyeOff size={14} />{t('BakeListPage_NotPublished')}</div>
+                    <div className="flex items-center gap-2"><Edit size={14}/>{t('BakeListPage_Edit')}</div>
                   </div>
                 </article>
               </Link>
@@ -88,7 +88,7 @@ const BakeListPage: React.FC<Props> = ({ bakes, isLoggedIn}) => {
                 <div className={`${isBig ? 'h-[350px]' : 'h-56'} overflow-hidden border-b-4 border-black relative`}>
                   <img src={bake.coverImage} alt={bake.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                   <div className="absolute top-4 left-4 bg-white border-2 border-black px-4 py-1 rounded-full font-black text-[10px] uppercase">
-                    {t('batch_no')} #{bake.batchNumber}
+                    {t('BakeListPage_batch_no')} #{bake.batchNumber}
                   </div>
                 </div>
                 

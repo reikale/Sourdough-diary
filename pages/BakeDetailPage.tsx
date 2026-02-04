@@ -28,7 +28,7 @@ const BakeDetailPage: React.FC<Props> = ({ bakes, session }) => {
 
   useEffect(() => {
     if (bake) {
-      document.title = `${bake.title} | ${t('app_name')}`;
+      document.title = `${bake.title} | ${t('App_name')}`;
       fetchComments();
     }
   }, [bake, t]);
@@ -162,19 +162,19 @@ const BakeDetailPage: React.FC<Props> = ({ bakes, session }) => {
 
         {/* Bakers Percentages Section */}
         <section className="bg-blue-100 border-8 border-black p-12 md:p-20 rounded-[4rem] flex flex-col items-center text-center space-y-8 shadow-[20px_20px_0px_0px_#000] mt-12">
-          <h3 className="text-5xl font-black text-blue-800 tracking-tighter uppercase">Bakers Percentages</h3>
+          <h3 className="text-5xl font-black text-blue-800 tracking-tighter uppercase">{t("BakeDetailsPage_BakersPerc_lbl")}</h3>
           <div className="w-full max-w-2xl text-left space-y-4">
           <p key={calculatedBakersPercentages.flour} className="text-3xl handwriting text-blue-900 font-bold">
-                {t('ingredient_flour')}: {calculatedBakersPercentages.flour}%
+                {t('BakeDetailsPage_BakersPerc_flour')}: {calculatedBakersPercentages.flour}%
           </p>
           <p key={calculatedBakersPercentages.water} className="text-3xl handwriting text-blue-900 font-bold">
-                {t('ingredient_water')}: {calculatedBakersPercentages.water}%
+                {t('BakeDetailsPage_BakersPerc_water')}: {calculatedBakersPercentages.water}%
           </p>
           <p key={calculatedBakersPercentages.starter} className="text-3xl handwriting text-blue-900 font-bold">
-                {t('ingredient_starter')}: {calculatedBakersPercentages.starter}%
+                {t('BakeDetailsPage_BakersPerc_starter')}: {calculatedBakersPercentages.starter}%
           </p>
           <p key={calculatedBakersPercentages.salt} className="text-3xl handwriting text-blue-900 font-bold">
-                {t('ingredient_salt')}: {calculatedBakersPercentages.salt}%
+                {t('BakeDetailsPage_BakersPerc_salt')}: {calculatedBakersPercentages.salt}%
           </p>
           </div>
         </section>
